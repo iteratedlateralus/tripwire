@@ -30,6 +30,7 @@ from the X Consortium.
 
 /*
  * Author:  Jim Fulton, MIT X Consortium
+ * Hacked: IteratedLateralus ( http://github.com/iteratedlateralus )
  */
 
 #ifdef HAVE_CONFIG_H
@@ -60,7 +61,6 @@ from the X Consortium.
 #define OUTER_WINDOW_DEF_X 100
 #define OUTER_WINDOW_DEF_Y 100
 
-
 typedef unsigned long Pixel;
 
 const char *Yes = "YES";
@@ -85,8 +85,11 @@ enum EventMaskIndex {
     NUM_EVENT_MASKS
 };
 
+/*
 static void usage (void) _X_NORETURN;
+*/
 
+/*
 static void
 prologue (XEvent *eventp, const char *event_name)
 {
@@ -95,7 +98,8 @@ prologue (XEvent *eventp, const char *event_name)
     printf ("\n%s event, serial %ld, synthetic %s, window 0x%lx,\n",
 	    event_name, e->serial, e->send_event ? Yes : No, e->window);
 }
-
+*/
+/*
 static void
 dump (char *str, int len)
 {
@@ -105,7 +109,8 @@ dump (char *str, int len)
         printf("%02x ", (unsigned char) *str++);
     printf("%02x)", (unsigned char) *str++);
 }
-
+*/
+/*
 static void
 do_KeyPress (XEvent *eventp)
 {
@@ -124,9 +129,9 @@ do_KeyPress (XEvent *eventp)
       buf = malloc (bsize);
 
     nbytes = XLookupString (e, str, 256, &ks, NULL);
-
+*/
     /* not supposed to call XmbLookupString on a key release event */
-    if (e->type == KeyPress && xic) {
+/*    if (e->type == KeyPress && xic) {
         do {
             nmbbytes = XmbLookupString (xic, e, buf, bsize - 1, &ks, &status);
             buf[nmbbytes] = '\0';
@@ -164,9 +169,9 @@ do_KeyPress (XEvent *eventp)
     } else {
     	printf ("\n");
     }
-
+*/
     /* not supposed to call XmbLookupString on a key release event */
-    if (e->type == KeyPress && xic) {
+/*    if (e->type == KeyPress && xic) {
         printf ("    XmbLookupString gives %d bytes: ", nmbbytes);
         if (nmbbytes > 0) {
            dump (buf, nmbbytes);
@@ -178,14 +183,15 @@ do_KeyPress (XEvent *eventp)
 
     printf ("    XFilterEvent returns: %s\n",
 	    XFilterEvent (eventp, e->window) ? "True" : "False");
-}
-
+}*/
+/*
 static void
 do_KeyRelease (XEvent *eventp)
 {
-    do_KeyPress (eventp);		/* since it has the same info */
-}
-
+    do_KeyPress (eventp);*/		/* since it has the same info */
+/* }
+ */
+/*
 static void
 do_ButtonPress (XEvent *eventp)
 {
@@ -196,17 +202,20 @@ do_ButtonPress (XEvent *eventp)
     printf ("    state 0x%x, button %u, same_screen %s\n",
 	    e->state, e->button, e->same_screen ? Yes : No);
 }
-
+*/
+/*
 static void
 do_ButtonRelease (XEvent *eventp)
 {
-    do_ButtonPress (eventp);		/* since it has the same info */
-}
-
+    do_ButtonPress (eventp);
+    */		/* since it has the same info */
+/*
+ * }
+*/
 static void
 do_MotionNotify (XEvent *eventp)
 {
-    XMotionEvent *e = (XMotionEvent *) eventp;
+    //XMotionEvent *e = (XMotionEvent *) eventp;
 
     /*
     printf ("    root 0x%lx, subw 0x%lx, time %lu, (%d,%d), root:(%d,%d),\n",
@@ -214,9 +223,9 @@ do_MotionNotify (XEvent *eventp)
     printf ("    state 0x%x, is_hint %u, same_screen %s\n",
 	    e->state, e->is_hint, e->same_screen ? Yes : No);
     */
-    play_wave("lolz.wav");
+    play_wave("alarm.wav");
 }
-
+/*
 static void
 do_EnterNotify (XEvent *eventp)
 {
@@ -254,8 +263,8 @@ do_EnterNotify (XEvent *eventp)
 static void
 do_LeaveNotify (XEvent *eventp)
 {
-    do_EnterNotify (eventp);		/* since it has same information */
-}
+    do_EnterNotify (eventp);*/		/* since it has same information */
+/*}
 
 static void
 do_FocusIn (XEvent *eventp)
@@ -290,8 +299,8 @@ do_FocusIn (XEvent *eventp)
 static void
 do_FocusOut (XEvent *eventp)
 {
-    do_FocusIn (eventp);		/* since it has same information */
-}
+    do_FocusIn (eventp);*/		/* since it has same information */
+/*}
 
 static void
 do_KeymapNotify (XEvent *eventp)
@@ -473,7 +482,8 @@ do_ResizeRequest (XEvent *eventp)
 
     printf ("    width %d, height %d\n", e->width, e->height);
 }
-
+*/
+/*
 static void
 do_CirculateNotify (XEvent *eventp)
 {
@@ -619,7 +629,9 @@ do_ClientMessage (XEvent *eventp)
         && (Atom) e->data.l[0] == wm_delete_window)
         exit (0);
 }
+*/
 
+/*
 static void
 do_MappingNotify (XEvent *eventp)
 {
@@ -825,7 +837,7 @@ do_RRNotify (XEvent *eventp)
 }
 
 
-
+*/
 static void
 set_sizehints (XSizeHints *hintp, int min_width, int min_height,
 	       int defwidth, int defheight, int defx, int defy,
@@ -861,13 +873,13 @@ set_sizehints (XSizeHints *hintp, int min_width, int min_height,
 	hintp->height = defheight;
 	hintp->flags |= PSize;
     }
-/*
+
     if (!(hintp->flags & USPosition)) {
 	hintp->x = defx;
 	hintp->y = defy;
 	hintp->flags |= PPosition;
     }
- */
+
     if (geom_result & XNegative) {
 	hintp->x = DisplayWidth (dpy, DefaultScreen (dpy)) + hintp->x -
 		    hintp->width;
@@ -877,7 +889,7 @@ set_sizehints (XSizeHints *hintp, int min_width, int min_height,
 		    hintp->height;
     }
 }
-
+/*
 static void
 usage (void)
 {
@@ -921,7 +933,7 @@ parse_backing_store (char *s)
 
     usage ();
 }
-
+*/
 static Bool
 parse_event_mask (const char *s, long event_masks[])
 {
@@ -982,6 +994,7 @@ parse_event_mask (const char *s, long event_masks[])
     return False;
 }
 
+
 int
 main (int argc, char **argv)
 {
@@ -1017,77 +1030,81 @@ main (int argc, char **argv)
     memset(event_masks, 0, sizeof(event_masks));
 
     w = 0;
-    for (i = 1; i < argc; i++) {
-	char *arg = argv[i];
+/*    for (i = 1; i < argc; i++) { */
+/*	char *arg = argv[i]; */
 
-	if (arg[0] == '-') {
+    displayname = ":0";
+
+	/*if (arg[0] == '-') {
 	    switch (arg[1]) {
-	      case 'd':			/* -display host:dpy */
-		if (++i >= argc) usage ();
+	      case 'd':*/			/* -display host:dpy */
+/*		if (++i >= argc) usage ();
 		displayname = argv[i];
 		continue;
-	      case 'g':			/* -geometry geom */
-		if (++i >= argc) usage ();
+	      case 'g':*/			/* -geometry geom */
+/*		if (++i >= argc) usage ();
 		geom = argv[i];
 		continue;
 	      case 'b':
 		switch (arg[2]) {
-		  case 'w':		/* -bw pixels */
-		    if (++i >= argc) usage ();
+		  case 'w':*/		/* -bw pixels */
+/*		    if (++i >= argc) usage ();
 		    borderwidth = atoi (argv[i]);
 		    continue;
-		  case 's':		/* -bs type */
-		    if (++i >= argc) usage ();
+		  case 's':	*/	/* -bs type */
+/*		    if (++i >= argc) usage ();
 		    attr.backing_store = parse_backing_store (argv[i]);
 		    mask |= CWBackingStore;
 		    continue;
 		  default:
 		    usage ();
 		}
-	      case 'i':			/* -id */
-		if (++i >= argc) usage ();
+	      case 'i':*/			/* -id */
+/*		if (++i >= argc) usage ();
 		sscanf(argv[i], "0x%lx", &w);
 		if (!w)
 		    sscanf(argv[i], "%lu", &w);
 		if (!w)
 		    usage ();
 		continue;
-	      case 'n':			/* -name */
-		if (++i >= argc) usage ();
+	      case 'n':	*/		/* -name */
+/*		if (++i >= argc) usage ();
 		name = argv[i];
 		continue;
 	      case 'r':
 		switch (arg[2]) {
-		  case 'o':		/* -root */
-		    use_root = True;
+		  case 'o':*/		/* -root */
+/*		    use_root = True;
 		    continue;
-		  case 'v':		/* -rv */
-		    reverse = True;
+		  case 'v':*/		/* -rv */
+/*		    reverse = True;
 		    continue;
 		  default:
 		    usage ();
 		}
 		continue;
-	      case 's':			/* -s */
-		attr.save_under = True;
+	      case 's':*/			/* -s */
+/*		attr.save_under = True;
 		mask |= CWSaveUnder;
 		continue;
-	      case 'e':			/* -event */
-		if (++i >= argc) usage ();
+	      case 'e':*/			/* -event */
+/*		if (++i >= argc) usage ();
 		if (!parse_event_mask (argv[i], event_masks))
 		    usage ();
 		event_mask_specified = True;
 		continue;
 	      default:
 		usage ();
-	    }				/* end switch on - */
-	} else
+	    }*/				/* end switch on - */
+/*	} else
 	  usage ();
-    }					/* end for over argc */
-
+    }*/					/* end for over argc */
+    
     /* if no -event options were specified, pretend all of them were */
-    if (!event_mask_specified)
+    if (!event_mask_specified){
         parse_event_mask (NULL, event_masks);
+        printf("Event mask specified. stub call to parse_event_mask\n");
+    }
 
     dpy = XOpenDisplay (displayname);
     if (!dpy) {
@@ -1144,11 +1161,12 @@ main (int argc, char **argv)
 	    attr.event_mask &= ~ButtonPressMask;
 	attr.event_mask &= ~SubstructureRedirectMask;
 	XSelectInput(dpy, w, attr.event_mask);
-    } else {
+    } else 
+        printf("Set sizehints\n");
 	set_sizehints (&hints, OUTER_WINDOW_MIN_WIDTH, OUTER_WINDOW_MIN_HEIGHT,
 		       OUTER_WINDOW_DEF_WIDTH, OUTER_WINDOW_DEF_HEIGHT,
 		       OUTER_WINDOW_DEF_X, OUTER_WINDOW_DEF_Y, geom);
-
+    
 	if (reverse) {
 	    back = BlackPixel(dpy,screen);
 	    fore = WhitePixel(dpy,screen);
@@ -1182,7 +1200,7 @@ main (int argc, char **argv)
 	XMapWindow (dpy, w);
 
 	printf ("Outer window is 0x%lx, inner window is 0x%lx\n", w, subw);
-    }
+    //}
 
     if (xim && xim_style) {
         xic = XCreateIC (xim,
@@ -1219,6 +1237,7 @@ main (int argc, char **argv)
 	XNextEvent (dpy, &event);
 
 	switch (event.type) {
+        /*
 	  case KeyPress:
 	    prologue (&event, "KeyPress");
 	    do_KeyPress (&event);
@@ -1235,10 +1254,12 @@ main (int argc, char **argv)
 	    prologue (&event, "ButtonRelease");
 	    do_ButtonRelease (&event);
 	    break;
+        */
 	  case MotionNotify:
-	    prologue (&event, "MotionNotify");
+	    /* prologue (&event, "MotionNotify"); */
 	    do_MotionNotify (&event);
 	    break;
+      /*
 	  case EnterNotify:
 	    prologue (&event, "EnterNotify");
 	    do_EnterNotify (&event);
@@ -1351,6 +1372,8 @@ main (int argc, char **argv)
 	    prologue (&event, "MappingNotify");
 	    do_MappingNotify (&event);
 	    break;
+        */
+      /*
 	  default:
 	    if (have_rr) {
 	        if (event.type == rr_event_base + RRScreenChangeNotify) {
@@ -1365,10 +1388,11 @@ main (int argc, char **argv)
 	    }
 	    printf ("Unknown event type %d\n", event.type);
 	    break;
+        */
 	}
 	fflush(stdout);
     }
 
     XCloseDisplay (dpy);
-    return 0;
+    return  0;
 }

@@ -61,77 +61,18 @@ enum {
 void play_wave(char* play_file)
 {
 	int option_index;
-	static const char short_options[] = "hnlLD:qt:c:f:r:d:MNF:A:R:T:B:vV:IPCi"
-#ifdef CONFIG_SUPPORT_CHMAP
-		"m:"
-#endif
-		;
-        /*
-	static const struct option long_options[] = {
-		{"help", 0, 0, 'h'},
-		{"version", 0, 0, OPT_VERSION},
-		{"list-devnames", 0, 0, 'n'},
-		{"list-devices", 0, 0, 'l'},
-		{"list-pcms", 0, 0, 'L'},
-		{"device", 1, 0, 'D'},
-		{"quiet", 0, 0, 'q'},
-		{"file-type", 1, 0, 't'},
-		{"channels", 1, 0, 'c'},
-		{"format", 1, 0, 'f'},
-		{"rate", 1, 0, 'r'},
-		{"duration", 1, 0 ,'d'},
-		{"mmap", 0, 0, 'M'},
-		{"nonblock", 0, 0, 'N'},
-		{"period-time", 1, 0, 'F'},
-		{"period-size", 1, 0, OPT_PERIOD_SIZE},
-		{"avail-min", 1, 0, 'A'},
-		{"start-delay", 1, 0, 'R'},
-		{"stop-delay", 1, 0, 'T'},
-		{"buffer-time", 1, 0, 'B'},
-		{"buffer-size", 1, 0, OPT_BUFFER_SIZE},
-		{"verbose", 0, 0, 'v'},
-		{"vumeter", 1, 0, 'V'},
-		{"separate-channels", 0, 0, 'I'},
-		{"playback", 0, 0, 'P'},
-		{"capture", 0, 0, 'C'},
-		{"disable-resample", 0, 0, OPT_DISABLE_RESAMPLE},
-		{"disable-channels", 0, 0, OPT_DISABLE_CHANNELS},
-		{"disable-format", 0, 0, OPT_DISABLE_FORMAT},
-		{"disable-softvol", 0, 0, OPT_DISABLE_SOFTVOL},
-		{"test-position", 0, 0, OPT_TEST_POSITION},
-		{"test-coef", 1, 0, OPT_TEST_COEF},
-		{"test-nowait", 0, 0, OPT_TEST_NOWAIT},
-		{"max-file-time", 1, 0, OPT_MAX_FILE_TIME},
-		{"process-id-file", 1, 0, OPT_PROCESS_ID_FILE},
-		{"use-strftime", 0, 0, OPT_USE_STRFTIME},
-		{"interactive", 0, 0, 'i'},
-		{"dump-hw-params", 0, 0, OPT_DUMP_HWPARAMS},
-		{"fatal-errors", 0, 0, OPT_FATAL_ERRORS},
-#ifdef CONFIG_SUPPORT_CHMAP
-		{"chmap", 1, 0, 'm'},
-#endif
-		{0, 0, 0, 0}
-	};
-    */
+	static const char short_options[] = "hnlLD:qt:c:f:r:d:MNF:A:R:T:B:vV:IPCi";
 	char *pcm_name = "default";
 	int tmp, err, c;
 	snd_pcm_info_t *info;
 	FILE *direction;
 
-#ifdef ENABLE_NLS
-	setlocale(LC_ALL, "");
-	textdomain(PACKAGE);
-#endif
-
 	snd_pcm_info_alloca(&info);
-
 	err = snd_output_stdio_attach(&log, stderr, 0);
 	assert(err >= 0);
-
 	file_type = FORMAT_DEFAULT;
 	command = "aplay";
 	direction = stdin;
-
 	chunk_size = -1;
 	rhwparams.format = DEFAULT_FORMAT;
 	rhwparams.rate = DEFAULT_SPEED;
@@ -140,12 +81,12 @@ void play_wave(char* play_file)
 	err = snd_pcm_open(&handle, pcm_name, stream, open_mode);
 	if (err < 0) {
 		error(_("audio open error: %s"), snd_strerror(err));
-		return 1;
+		return;
 	}
 
 	if ((err = snd_pcm_info(handle, info)) < 0) {
 		error(_("info error: %s"), snd_strerror(err));
-		return 1;
+		return;
 	}
 
 	chunk_size = 1024;
@@ -154,36 +95,15 @@ void play_wave(char* play_file)
 	audiobuf = (u_char *)malloc(1024);
 	if (audiobuf == NULL) {
 		error(_("not enough memory"));
-		return 1;
+		return;
 	}
 
-		writei_func = snd_pcm_writei;
-		readi_func = snd_pcm_readi;
-		writen_func = snd_pcm_writen;
-		readn_func = snd_pcm_readn;
+	writei_func = snd_pcm_writei;
+	readi_func = snd_pcm_readi;
+	writen_func = snd_pcm_writen;
+	readn_func = snd_pcm_readn;
 
-	//if (interleaved) {
-/*		if (optind > argc - 1) {
-			if (stream == SND_PCM_STREAM_PLAYBACK)
-				playback(NULL);
-			else
-				capture(NULL);
-		} else {
-			while (optind <= argc - 1) {
-				if (stream == SND_PCM_STREAM_PLAYBACK)
-*/
-					playback(play_file);
-/*				else
-					capture(argv[optind++]);
-			}
-		}
-*/
-	//} else {
-	//	if (stream == SND_PCM_STREAM_PLAYBACK)
-	//		playbackv(&argv[optind], argc - optind);
-	//	else
-	//		capturev(&argv[optind], argc - optind);
-	//}
+	playback(play_file);
 	if (verbose==2)
 		putchar('\n');
 	snd_pcm_close(handle);
@@ -192,9 +112,7 @@ void play_wave(char* play_file)
       __end:
 	snd_output_close(log);
 	snd_config_update_free_global();
-	//prg_exit(EXIT_SUCCESS);
-	/* avoid warning */
-	return EXIT_SUCCESS;
+	return;
 }
 
 
@@ -1815,7 +1733,9 @@ static void playback_go(int fd, size_t loaded, off64_t count, int rtype, char *n
 	off64_t written = 0;
 	off64_t c;
 
+    /*
 	header(rtype, name);
+    */
 	set_params();
 
 	while (loaded > chunk_bytes && written < count && !in_aborting) {

@@ -87,144 +87,11 @@ enum EventMaskIndex {
     NUM_EVENT_MASKS
 };
 
-/*
-static void usage (void) _X_NORETURN;
-*/
-
-/*
-static void
-prologue (XEvent *eventp, const char *event_name)
-{
-    XAnyEvent *e = (XAnyEvent *) eventp;
-
-    printf ("\n%s event, serial %ld, synthetic %s, window 0x%lx,\n",
-	    event_name, e->serial, e->send_event ? Yes : No, e->window);
-}
-*/
-/*
-static void
-dump (char *str, int len)
-{
-    printf("(");
-    len--;
-    while (len-- > 0)
-        printf("%02x ", (unsigned char) *str++);
-    printf("%02x)", (unsigned char) *str++);
-}
-*/
-/*
-static void
-do_KeyPress (XEvent *eventp)
-{
-    XKeyEvent *e = (XKeyEvent *) eventp;
-    KeySym ks;
-    KeyCode kc = 0;
-    Bool kc_set = False;
-    const char *ksname;
-    int nbytes, nmbbytes = 0;
-    char str[256+1];
-    static char *buf = NULL;
-    static int bsize = 8;
-    Status status;
-
-    if (buf == NULL)
-      buf = malloc (bsize);
-
-    nbytes = XLookupString (e, str, 256, &ks, NULL);
-*/
-    /* not supposed to call XmbLookupString on a key release event */
-/*    if (e->type == KeyPress && xic) {
-        do {
-            nmbbytes = XmbLookupString (xic, e, buf, bsize - 1, &ks, &status);
-            buf[nmbbytes] = '\0';
-
-            if (status == XBufferOverflow) {
-                bsize = nmbbytes + 1;
-                buf = realloc (buf, bsize);
-            }
-        } while (status == XBufferOverflow);
-    }
-
-    if (ks == NoSymbol)
-	ksname = "NoSymbol";
-    else {
-	if (!(ksname = XKeysymToString (ks)))
-	    ksname = "(no name)";
-	kc = XKeysymToKeycode(dpy, ks);
-	kc_set = True;
-    }
-
-    printf ("    root 0x%lx, subw 0x%lx, time %lu, (%d,%d), root:(%d,%d),\n",
-	    e->root, e->subwindow, e->time, e->x, e->y, e->x_root, e->y_root);
-    printf ("    state 0x%x, keycode %u (keysym 0x%lx, %s), same_screen %s,\n",
-	    e->state, e->keycode, (unsigned long) ks, ksname,
-	    e->same_screen ? Yes : No);
-    if (kc_set && e->keycode != kc)
-	printf ("    XKeysymToKeycode returns keycode: %u\n",kc);
-    if (nbytes < 0) nbytes = 0;
-    if (nbytes > 256) nbytes = 256;
-    str[nbytes] = '\0';
-    printf ("    XLookupString gives %d bytes: ", nbytes);
-    if (nbytes > 0) {
-        dump (str, nbytes);
-        printf (" \"%s\"\n", str);
-    } else {
-    	printf ("\n");
-    }
-*/
-    /* not supposed to call XmbLookupString on a key release event */
-/*    if (e->type == KeyPress && xic) {
-        printf ("    XmbLookupString gives %d bytes: ", nmbbytes);
-        if (nmbbytes > 0) {
-           dump (buf, nmbbytes);
-           printf (" \"%s\"\n", buf);
-        } else {
-    	   printf ("\n");
-        }
-    }
-
-    printf ("    XFilterEvent returns: %s\n",
-	    XFilterEvent (eventp, e->window) ? "True" : "False");
-}*/
-/*
-static void
-do_KeyRelease (XEvent *eventp)
-{
-    do_KeyPress (eventp);*/		/* since it has the same info */
-/* }
- */
-/*
-static void
-do_ButtonPress (XEvent *eventp)
-{
-    XButtonEvent *e = (XButtonEvent *) eventp;
-
-    printf ("    root 0x%lx, subw 0x%lx, time %lu, (%d,%d), root:(%d,%d),\n",
-	    e->root, e->subwindow, e->time, e->x, e->y, e->x_root, e->y_root);
-    printf ("    state 0x%x, button %u, same_screen %s\n",
-	    e->state, e->button, e->same_screen ? Yes : No);
-}
-*/
-/*
-static void
-do_ButtonRelease (XEvent *eventp)
-{
-    do_ButtonPress (eventp);
-    */		/* since it has the same info */
-/*
- * }
-*/
 static void
 do_MotionNotify (XEvent *eventp)
 {
     //XMotionEvent *e = (XMotionEvent *) eventp;
 
-    /*
-    printf ("    root 0x%lx, subw 0x%lx, time %lu, (%d,%d), root:(%d,%d),\n",
-	    e->root, e->subwindow, e->time, e->x, e->y, e->x_root, e->y_root);
-    printf ("    state 0x%x, is_hint %u, same_screen %s\n",
-	    e->state, e->is_hint, e->same_screen ? Yes : No);
-    */
     maximize_window(dpy,main_window);
     play_wave("alarm.wav");
 }
@@ -281,51 +148,6 @@ set_sizehints (XSizeHints *hintp, int min_width, int min_height,
 		    hintp->height;
     }
 }
-/*
-static void
-usage (void)
-{
-    static const char *msg[] = {
-"    -display displayname                X server to contact",
-"    -geometry geom                      size and location of window",
-"    -bw pixels                          border width in pixels",
-"    -bs {NotUseful,WhenMapped,Always}   backingstore attribute",
-"    -id windowid                        use existing window",
-"    -root                               use root window",
-"    -s                                  set save-unders attribute",
-"    -name string                        window name",
-"    -rv                                 reverse video",
-"    -event event_mask                   select 'event_mask' events",
-"           Supported event masks: keyboard mouse expose visibility structure",
-"                                  substructure focus property colormap",
-"                                  owner_grab_button randr",
-"           This option can be specified multiple times to select multiple",
-"           event masks.",
-"",
-NULL};
-    const char **cpp;
-
-    fprintf (stderr, "usage:  %s [-options ...]\n", ProgramName);
-    fprintf (stderr, "where options include:\n");
-
-    for (cpp = msg; *cpp; cpp++)
-	fprintf (stderr, "%s\n", *cpp);
-
-    exit (1);
-}
-
-static int
-parse_backing_store (char *s)
-{
-    size_t len = strlen (s);
-
-    if (strncasecmp (s, "NotUseful", len) == 0) return (NotUseful);
-    if (strncasecmp (s, "WhenMapped", len) == 0) return (WhenMapped);
-    if (strncasecmp (s, "Always", len) == 0) return (Always);
-
-    usage ();
-}
-*/
 static Bool
 parse_event_mask (const char *s, long event_masks[])
 {
@@ -427,71 +249,6 @@ main (int argc, char **argv)
 
     displayname = ":0";
 
-	/*if (arg[0] == '-') {
-	    switch (arg[1]) {
-	      case 'd':*/			/* -display host:dpy */
-/*		if (++i >= argc) usage ();
-		displayname = argv[i];
-		continue;
-	      case 'g':*/			/* -geometry geom */
-/*		if (++i >= argc) usage ();
-		geom = argv[i];
-		continue;
-	      case 'b':
-		switch (arg[2]) {
-		  case 'w':*/		/* -bw pixels */
-/*		    if (++i >= argc) usage ();
-		    borderwidth = atoi (argv[i]);
-		    continue;
-		  case 's':	*/	/* -bs type */
-/*		    if (++i >= argc) usage ();
-		    attr.backing_store = parse_backing_store (argv[i]);
-		    mask |= CWBackingStore;
-		    continue;
-		  default:
-		    usage ();
-		}
-	      case 'i':*/			/* -id */
-/*		if (++i >= argc) usage ();
-		sscanf(argv[i], "0x%lx", &w);
-		if (!w)
-		    sscanf(argv[i], "%lu", &w);
-		if (!w)
-		    usage ();
-		continue;
-	      case 'n':	*/		/* -name */
-/*		if (++i >= argc) usage ();
-		name = argv[i];
-		continue;
-	      case 'r':
-		switch (arg[2]) {
-		  case 'o':*/		/* -root */
-/*		    use_root = True;
-		    continue;
-		  case 'v':*/		/* -rv */
-/*		    reverse = True;
-		    continue;
-		  default:
-		    usage ();
-		}
-		continue;
-	      case 's':*/			/* -s */
-/*		attr.save_under = True;
-		mask |= CWSaveUnder;
-		continue;
-	      case 'e':*/			/* -event */
-/*		if (++i >= argc) usage ();
-		if (!parse_event_mask (argv[i], event_masks))
-		    usage ();
-		event_mask_specified = True;
-		continue;
-	      default:
-		usage ();
-	    }*/				/* end switch on - */
-/*	} else
-	  usage ();
-    }*/					/* end for over argc */
-    
     /* if no -event options were specified, pretend all of them were */
     if (!event_mask_specified){
         parse_event_mask (NULL, event_masks);
@@ -626,167 +383,18 @@ main (int argc, char **argv)
 
     /* Maximize the window */
     maximize_window(dpy,w);
-
     for (done = 0; !done; ) {
-	XEvent event;
+        XEvent event;
 
-	XNextEvent (dpy, &event);
+        XNextEvent (dpy, &event);
 
-	switch (event.type) {
-        /*
-	  case KeyPress:
-	    prologue (&event, "KeyPress");
-	    do_KeyPress (&event);
-	    break;
-	  case KeyRelease:
-	    prologue (&event, "KeyRelease");
-	    do_KeyRelease (&event);
-	    break;
-	  case ButtonPress:
-	    prologue (&event, "ButtonPress");
-	    do_ButtonPress (&event);
-	    break;
-	  case ButtonRelease:
-	    prologue (&event, "ButtonRelease");
-	    do_ButtonRelease (&event);
-	    break;
-        */
-	  case MotionNotify:
-	    /* prologue (&event, "MotionNotify"); */
-	    do_MotionNotify (&event);
-	    break;
-      /*
-	  case EnterNotify:
-	    prologue (&event, "EnterNotify");
-	    do_EnterNotify (&event);
-	    break;
-	  case LeaveNotify:
-	    prologue (&event, "LeaveNotify");
-	    do_LeaveNotify (&event);
-	    break;
-	  case FocusIn:
-	    prologue (&event, "FocusIn");
-	    do_FocusIn (&event);
-	    break;
-	  case FocusOut:
-	    prologue (&event, "FocusOut");
-	    do_FocusOut (&event);
-	    break;
-	  case KeymapNotify:
-	    prologue (&event, "KeymapNotify");
-	    do_KeymapNotify (&event);
-	    break;
-	  case Expose:
-	    prologue (&event, "Expose");
-	    do_Expose (&event);
-	    break;
-	  case GraphicsExpose:
-	    prologue (&event, "GraphicsExpose");
-	    do_GraphicsExpose (&event);
-	    break;
-	  case NoExpose:
-	    prologue (&event, "NoExpose");
-	    do_NoExpose (&event);
-	    break;
-	  case VisibilityNotify:
-	    prologue (&event, "VisibilityNotify");
-	    do_VisibilityNotify (&event);
-	    break;
-	  case CreateNotify:
-	    prologue (&event, "CreateNotify");
-	    do_CreateNotify (&event);
-	    break;
-	  case DestroyNotify:
-	    prologue (&event, "DestroyNotify");
-	    do_DestroyNotify (&event);
-	    break;
-	  case UnmapNotify:
-	    prologue (&event, "UnmapNotify");
-	    do_UnmapNotify (&event);
-	    break;
-	  case MapNotify:
-	    prologue (&event, "MapNotify");
-	    do_MapNotify (&event);
-	    break;
-	  case MapRequest:
-	    prologue (&event, "MapRequest");
-	    do_MapRequest (&event);
-	    break;
-	  case ReparentNotify:
-	    prologue (&event, "ReparentNotify");
-	    do_ReparentNotify (&event);
-	    break;
-	  case ConfigureNotify:
-	    prologue (&event, "ConfigureNotify");
-	    do_ConfigureNotify (&event);
-	    break;
-	  case ConfigureRequest:
-	    prologue (&event, "ConfigureRequest");
-	    do_ConfigureRequest (&event);
-	    break;
-	  case GravityNotify:
-	    prologue (&event, "GravityNotify");
-	    do_GravityNotify (&event);
-	    break;
-	  case ResizeRequest:
-	    prologue (&event, "ResizeRequest");
-	    do_ResizeRequest (&event);
-	    break;
-	  case CirculateNotify:
-	    prologue (&event, "CirculateNotify");
-	    do_CirculateNotify (&event);
-	    break;
-	  case CirculateRequest:
-	    prologue (&event, "CirculateRequest");
-	    do_CirculateRequest (&event);
-	    break;
-	  case PropertyNotify:
-	    prologue (&event, "PropertyNotify");
-	    do_PropertyNotify (&event);
-	    break;
-	  case SelectionClear:
-	    prologue (&event, "SelectionClear");
-	    do_SelectionClear (&event);
-	    break;
-	  case SelectionRequest:
-	    prologue (&event, "SelectionRequest");
-	    do_SelectionRequest (&event);
-	    break;
-	  case SelectionNotify:
-	    prologue (&event, "SelectionNotify");
-	    do_SelectionNotify (&event);
-	    break;
-	  case ColormapNotify:
-	    prologue (&event, "ColormapNotify");
-	    do_ColormapNotify (&event);
-	    break;
-	  case ClientMessage:
-	    prologue (&event, "ClientMessage");
-	    do_ClientMessage (&event);
-	    break;
-	  case MappingNotify:
-	    prologue (&event, "MappingNotify");
-	    do_MappingNotify (&event);
-	    break;
-        */
-      /*
-	  default:
-	    if (have_rr) {
-	        if (event.type == rr_event_base + RRScreenChangeNotify) {
-	            prologue (&event, "RRScreenChangeNotify");
-	            do_RRScreenChangeNotify (&event);
-	            break;
-	        }
-	        if (event.type == rr_event_base + RRNotify) {
-	            do_RRNotify (&event);
-	            break;
-	        }
-	    }
-	    printf ("Unknown event type %d\n", event.type);
-	    break;
-        */
-	}
-	fflush(stdout);
+        switch (event.type) {
+          case MotionNotify:
+            /* prologue (&event, "MotionNotify"); */
+            do_MotionNotify (&event);
+            break;
+        }
+        fflush(stdout);
     }
 
     XCloseDisplay (dpy);

@@ -1,17 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <X11/Xlib.h>
-#include <xdo.h>
+#ifndef __XDO_UTILS__ 
+#define __XDO_UTILS__ 1
+#include "xdoutils.h"
 
-int move_mouse_to(unsigned int xint,unsigned int yint,const char const * display_string){
+int move_mouse_to(unsigned int xint,unsigned int yint,const char * display_string){
     xdo_t* xdo_ptr;
-    xdo_ptr = xdo_new(display_string);
+    xdo_ptr = xdo_new((char*)display_string);
     if( xdo_ptr == NULL ){
         fprintf(stderr,"xdo_new failed\n");
         return -1;
     }
-    xdo_move_mouse(xdo_ptr,xint,yint,0);
+    xdo_mousemove(xdo_ptr,xint,yint,0);
 
     return 0;
 }
@@ -125,3 +123,5 @@ void maximize_window(Display* dpy,Window w){
  main(){
     center_mouse();
 }*/
+
+#endif

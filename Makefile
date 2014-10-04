@@ -1,6 +1,6 @@
-all: aplay.o xdo.o
-	gcc -Wall xev.c aplay.o xdo.o -lXrandr -lX11 -lasound -lxdo -o xev
-aplay.o: aplay.c
-	gcc -Wall -c aplay.c -lasound -o aplay.o
+all: playwave.o 
+	g++ -ggdb -Wall `sdl-config --cflags` xdoutils.c xev.c -lSDL_mixer -lxdo playwave.o -lXrandr -lX11 -o xev 
+playwave.o:
+	g++ -ggdb -Wall -c `sdl-config --cflags` -lSDL_mixer sdl/playwave.c 
 xdo.o: xdoutils.c
-	gcc -Wall -c xdoutils.c -lX11 -lxdo -o xdo.o
+	g++ -ggdb -Wall -c xdoutils.c -lxdo -o xdo.o

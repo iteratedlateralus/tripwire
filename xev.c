@@ -36,7 +36,9 @@ from the X Consortium.
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include "aplay.h"
+#include "sdl/playwave.h"
+#include <iostream>
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -91,9 +93,8 @@ static void
 do_MotionNotify (XEvent *eventp)
 {
     //XMotionEvent *e = (XMotionEvent *) eventp;
-
-    maximize_window(dpy,main_window);
-    play_wave("alarm.wav");
+//    maximize_window(dpy,main_window);
+    play_wave((const char*)"alarm.wav");
 }
 /*
 */
@@ -193,7 +194,7 @@ parse_event_mask (const char *s, long event_masks[])
           EVENT_MASK_INDEX_RANDR,
           RRScreenChangeNotifyMask | RRCrtcChangeNotifyMask |
           RROutputChangeNotifyMask | RROutputPropertyNotifyMask },
-        { NULL, 0, 0 }
+        { NULL, (EventMaskIndex)0, 0 }
     };
     int i;
 

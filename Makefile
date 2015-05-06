@@ -1,6 +1,4 @@
 all: playwave.o 
-	g++ -ggdb -Wall `sdl-config --cflags` xdoutils.c xev.c -lSDL_mixer -lxdo playwave.o -lXrandr -lX11 -o xev 
+	g++ -ggdb -Wall -std=c++11 `curl-config --cflags` `curl-config --libs` `sdl-config --cflags` xev.c `sdl-config --libs` -lSDL_mixer -lxdo playwave.o -lXrandr -lX11 -o xev 
 playwave.o:
-	g++ -ggdb -Wall -c `sdl-config --cflags` -lSDL_mixer sdl/playwave.c 
-xdo.o: xdoutils.c
-	g++ -ggdb -Wall -c xdoutils.c -lxdo -o xdo.o
+	g++ -ggdb -Wall -c -std=c++11 `sdl-config --cflags` `sdl-config --libs` -lSDL_mixer sdl/playwave.c 

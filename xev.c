@@ -13,6 +13,7 @@ extern char* optarg;
 Display* dpy;
 Window w;
 char trigger_type[10];    
+char* device = NULL;
 time_t grace_time;
 time_t trigger_grace_time = 0;
 int sound_off_count = 1;
@@ -34,6 +35,8 @@ void usage(){
     printf(" -t <type>      Trigger type. One of: http,sms,sendmail,none\n");
     printf(" HTTP type\n");
     printf(" -u <url>       URL to hit\n");
+    printf(" -d             Read from stdin\n");
+    printf(" -D <file/dev>  Read from file or dev device\n");
     printf("OTHER OPTIONS\n");
     printf(" -x <width>     Width of the capture window\n");
     printf(" -y <height>    Height of the capture window\n");
@@ -46,6 +49,9 @@ void usage(){
     printf("\n");
     printf(" Using /dev/input mice as input: \n");
     printf(" $ sudo cat /dev/input/mice | ./xev -d -t http -u http://example.com/script.php\n");
+    printf("\n");
+    printf(" Reading directly from /dev/input/mice (may require sudo)\n");
+    printf(" $ sudo ./xev -d -D /dev/input/mice -t http -u http://example.com/script.php\n");
     printf("\n");
 }
 
@@ -102,16 +108,20 @@ int main(int argc,char** argv){
     int s,x,y,misc;
     int stdin_read = 0;
     char c;
-    
+    FILE* fp = NULL;
     grace_time = time(NULL) + 10;
     
-    while((c=getopt(argc,argv,"t:di:p:h:g:x:y:u:T:m:")) != -1){
+    while((c=getopt(argc,argv,"t:dD:i:p:h:g:x:y:u:T:m:")) != -1){
         switch(c){
             case 't':
                 strncpy(trigger_type,optarg,10);
                 break;
             case 'd':
                 stdin_read = 1;
+                break;
+            case 'D':
+                device = (char*)malloc(strlen(optarg));
+                strncpy(device,optarg,strlen(optarg));
                 break;
             case 'x':
                 x = atoi(optarg);
@@ -138,11 +148,26 @@ int main(int argc,char** argv){
     }
 
     if( stdin_read ){
-        while(1){
-            misc = read(0,&c,sizeof(char));
-            if( misc ){
-                motionNotify();
+        if( device ){
+            fp = fopen(device,"rb");
+            if( !fp ){
+                fprintf(stderr,"Unable to open device: %s\n",device);
+                free(device);
+                return -1;
+            }else{
+                while(1){
+                    if( fread(&c,sizeof(char),1,fp) ){
+                        motionNotify();
+                    }
+                } 
             }
+        }else{
+                while(1){
+                    misc = read(0,&c,sizeof(char));
+                    if( misc ){
+                        motionNotify();
+                    }
+                }
         }
     }else{
             dpy = XOpenDisplay(NULL);
@@ -168,5 +193,7 @@ int main(int argc,char** argv){
                 }
             }
     }
+    if( device )
+        free(device);
     return 0;
 }

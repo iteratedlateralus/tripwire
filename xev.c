@@ -3,11 +3,13 @@
  */
 
 #include "sdl/playwave.h"
+#include "sendmail.h"
 #include <unistd.h>
 #include <time.h>
 #include <stdio.h>
 #include <X11/Xlib.h>
 #include <curl/curl.h>
+#define SMTP_TEMPLATE_FILE "template.txt"
 
 extern char* optarg;
 Display* dpy;
@@ -25,6 +27,13 @@ int child_count = 0;
 int http_counter = 0;
 int http_threshhold = 5;
 int first_hit = 0; 
+static char* smtp_host = NULL;
+static char* smtp_user = NULL;
+static char* smtp_to = NULL;
+static char* smtp_from = NULL;
+static char* smtp_password = NULL;
+static char* smtp_message = NULL;
+static uint16_t smtp_port = 25;
 
 void usage(){
     printf("Usage:\n");
@@ -32,11 +41,19 @@ void usage(){
     printf(" ./tripwire -t <type> [options]\n");
     printf("OPTIONS\n");
     printf("=======\n");
+    printf(" -h             Print this help screen\n");
     printf(" -t <type>      Trigger type. One of: http,sms,sendmail,none\n");
-    printf(" HTTP type\n");
-    printf(" -u <url>       URL to hit\n");
     printf(" -d             Read from stdin\n");
     printf(" -D <file/dev>  Read from file or dev device\n");
+    printf(" HTTP type\n");
+    printf(" -u <url>       URL to hit\n");
+    printf(" SMTP type\n");
+    printf(" -H <host>      SMTP host\n");
+    printf(" -F <from>      SMTP from\n");
+    printf(" -P <password>  SMTP password\n");
+    printf(" -p <port>      SMTP port (default: 25)\n");
+    printf(" -o <to>        SMTP destination\n");
+    printf(" \n");
     printf("OTHER OPTIONS\n");
     printf(" -x <width>     Width of the capture window\n");
     printf(" -y <height>    Height of the capture window\n");
@@ -62,8 +79,15 @@ int trigger_grace_time_reached(){
     return time(NULL) >= trigger_grace_time;
 }
 void trigger_sendmail(){
-    
-
+    if( smtp_message ){
+        free(smtp_message);
+        smtp_message = NULL;
+    }
+    smtp_message = (char*)malloc(1000);
+    if( build_smtp_message(SMTP_TEMPLATE_FILE,smtp_message,1000) < 0 ){
+        strcpy(smtp_message,"Tripwire Alert");
+    }
+    smtp_send_message(smtp_host,smtp_port,smtp_user,smtp_password,smtp_from,smtp_message,strlen(smtp_message),&smtp_to);
 }
 
 void trigger_http_get(){
@@ -81,7 +105,7 @@ void motionNotify (){
 
     if( sound_off_counter++ >= sound_off_threshhold ){
         if( strcmp(trigger_type,"sendmail") == 0 ){
-            printf("Sendmail stub\n");
+            trigger_sendmail();
         }else if( strcmp(trigger_type,"sms") == 0 ){
             printf("SMS stub\n");
         }else if( strcmp(trigger_type,"http") == 0 ){
@@ -111,7 +135,7 @@ int main(int argc,char** argv){
     FILE* fp = NULL;
     grace_time = time(NULL) + 10;
     
-    while((c=getopt(argc,argv,"t:dD:i:p:h:g:x:y:u:T:m:")) != -1){
+    while((c=getopt(argc,argv,"t:do:D:H:F:P:i:p:hg:x:y:u:T:m:")) != -1){
         switch(c){
             case 't':
                 strncpy(trigger_type,optarg,10);
@@ -141,6 +165,28 @@ int main(int argc,char** argv){
             case 'm':
                 max_children = atoi(optarg);
                 break;
+            case 'H':
+                smtp_host = (char*)malloc(strlen(optarg));
+                strncpy(smtp_host,optarg,strlen(optarg));
+                break;
+            case 'F':
+                smtp_from = (char*)malloc(strlen(optarg));
+                strncpy(smtp_from,optarg,strlen(optarg));   
+                break;
+            case 'P':
+                smtp_password = (char*)malloc(strlen(optarg));
+                strncpy(smtp_password,optarg,strlen(optarg));
+                break;
+            case 'p':
+                smtp_port = atoi(optarg);
+                break;
+            case 'o':
+                smtp_to = (char*)malloc(strlen(optarg));
+                strncpy(smtp_to,optarg,strlen(optarg));
+                break;
+            case 'h':
+                usage();
+                return 0;
             case '?':
                 fprintf(stderr,"Unknown option encountered\n");
                 return -1;
@@ -195,5 +241,11 @@ int main(int argc,char** argv){
     }
     if( device )
         free(device);
+    if( smtp_host)
+        free(smtp_host);
+    if( smtp_user )
+        free(smtp_user);
+    if( smtp_password )
+        free(smtp_password);
     return 0;
 }

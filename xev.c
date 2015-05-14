@@ -68,7 +68,7 @@ void usage(){
     printf(" $ sudo cat /dev/input/mice | ./xev -d -t http -u http://example.com/script.php\n");
     printf("\n");
     printf(" Reading directly from /dev/input/mice (may require sudo)\n");
-    printf(" $ sudo ./xev -d -D /dev/input/mice -t http -u http://example.com/script.php\n");
+    printf(" $ sudo ./xev -D /dev/input/mice -t http -u http://example.com/script.php\n");
     printf("\n");
 }
 
@@ -146,6 +146,7 @@ int main(int argc,char** argv){
             case 'D':
                 device = (char*)malloc(strlen(optarg));
                 strncpy(device,optarg,strlen(optarg));
+                stdin_read = 1;
                 break;
             case 'x':
                 x = atoi(optarg);
